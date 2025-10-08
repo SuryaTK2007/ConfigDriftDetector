@@ -32,7 +32,7 @@ public class ConfigDriftDetector {
         }
         return props;
     }
-    private static final Set<String> IGNORED_KEYS = Set.of("server.port");
+    private static final Set<String> IGNORED_KEYS = Set.of("server.port", "spring.application.name");
     private static void compareConfigs(String baseName, Properties base, String targetName, Properties target) {
         System.out.println("\n--- Comparing " + baseName + " vs " + targetName + " ---");
 
