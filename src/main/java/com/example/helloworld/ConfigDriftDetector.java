@@ -32,30 +32,42 @@ public class ConfigDriftDetector {
         }
         return props;
     }
-    private static final Set<String> IGNORED_KEYS = Set.of("server.port", "spring.application.name");
+    private static final Set<String> IGNORED_KEYS = Set.of(
+        "server.port", "spring.application.name", 
+        "spring.datasource.url", "spring.datasource.username", "spring.datasource.password"
+    );
+    
     private static void compareConfigs(String baseName, Properties base, String targetName, Properties target) {
         System.out.println("\n--- Comparing " + baseName + " vs " + targetName + " ---");
 
         Set<String> allKeys = new HashSet<>();
         base.stringPropertyNames().forEach(allKeys::add);
         target.stringPropertyNames().forEach(allKeys::add);
+        
+        int matches = 0, diffs = 0, missing = 0;
 
         for (String key : allKeys) {
             if (IGNORED_KEYS.contains(key)) {
-                continue; // skip comparison for ignored keys
+                continue;
             }
             String baseVal = base.getProperty(key);
             String targetVal = target.getProperty(key);
 
             if (Objects.equals(baseVal, targetVal)) {
                 System.out.println("✅ " + key + " matches (" + baseVal + ")");
+                matches++;
             } else if (baseVal != null && targetVal != null) {
                 System.out.println("❌ " + key + " differs: " + baseName + "=" + baseVal + ", " + targetName + "=" + targetVal);
+                diffs++;
             } else if (baseVal != null) {
                 System.out.println("⚠️ " + key + " missing in " + targetName);
+                missing++;
             } else {
                 System.out.println("⚠️ " + key + " missing in " + baseName);
+                missing++;
             }
         }
+        
+        System.out.println("\n📊 Summary: " + matches + " matches, " + diffs + " differences, " + missing + " missing");
     }
 }
